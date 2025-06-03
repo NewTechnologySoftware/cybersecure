@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberSecure NTS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #0056b3;
+            margin-bottom: 15px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background-color: #ddd;
+            margin: 30px 0;
+        }
+        .loading-spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #007bff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .percentage {
+            font-size: 3em;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .hidden {
+            display: none;
+        }
+        .success-screen {
+            background-color: #e6ffe6;
+            color: #28a745;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .success-screen h1 {
+            color: #28a745;
+        }
+        .success-screen img {
+            max-width: 150px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="main-content">
+        <h1>Hloubkový sken zařízení</h1>
+        <p>Spusťte hloubkový sken zařízení. Tento sken prohledá vše v zařízení, i ty nejskrytější místa, kam se běžné testy a antiviry nedostanou. Tento test bude trvat poměrně dlouho, v řádu několika minut až hodin. Nemělo by to zabrat více než 5 hodin. Během testu nezavírejte aplikaci CyberSecure NTS a dotýkejte se pravidelně displeje telefonu / touchpadu nebo myši počítače, aby nedošlo k vypnutí obrazovky a přerušení testu. Tento test doporučujeme naplánovat v době, kdy nepotřebujete telefon aktivně používat.</p>
+        <button id="start-deep-scan">Zahájit hloubkový test ihned</button>
+
+        <hr>
+
+        <h2>Rychlý test zařízení</h2>
+        <p>Tohle je rychlý test zařízení, který oskenuje jen místa, kde viry nejčastěji bývají. Před tímto testem se dokáží viry skrývat, doporučujeme použít hloubkový test. Tento rychlý test doporučujeme pouze ve chvílích, kdy nemáte moc času nebo chcete jen preventivně zkontrolovat telefon / počítač.</p>
+        <button id="start-quick-scan">Zahájit rychlý test ihned</button>
+    </div>
+
+    <div class="container hidden" id="scan-in-progress-deep">
+        <h1 id="scan-title">Probíhá hloubkový test zařízení...</h1>
+        <p id="scan-message">Kontrola probíhá, nevypínejte zařízení!</p>
+        <div class="loading-spinner"></div>
+        <div class="percentage" id="deep-scan-percentage"></div>
+    </div>
+
+    <div class="container hidden" id="scan-in-progress-quick">
+        <h1 id="quick-scan-title">Probíhá rychlý test zařízení...</h1>
+        <p id="quick-scan-message">Dejte nám prosím chvilku...</p>
+        <div class="loading-spinner"></div>
+        <div class="percentage" id="quick-scan-percentage"></div>
+    </div>
+
+    <div class="container hidden success-screen" id="deep-scan-success">
+        <h1>Hloubkový test zařízení úspěšně dokončen</h1>
+        <p>Nenašli jsme žádné problémy, hrozby ani malware. Vše je v pořádku, jen tak dále. Doporučujeme provádět tyto testy pravidelně, abyste měli vždy jistotu.</p>
+        <img src="fajfka.jpg" alt="Úspěšně dokončeno">
+    </div>
+
+    <div class="container hidden success-screen" id="quick-scan-success">
+        <h1>Rychlý test dokončen.</h1>
+        <p>Vypadá to dobře. Nic jsme nenašli, žádný malware ani hrozby.</p>
+        <p>Můžete zkusit také hloubkový test.</p>
+        <img src="fajfka.jpg" alt="Úspěšně dokončeno">
+    </div>
+
+    <script>
+        const mainContent = document.getElementById('main-content');
+        const scanInProgressDeep = document.getElementById('scan-in-progress-deep');
+        const scanInProgressQuick = document.getElementById('scan-in-progress-quick');
+        const deepScanSuccess = document.getElementById('deep-scan-success');
+        const quickScanSuccess = document.getElementById('quick-scan-success');
+        const deepScanPercentage = document.getElementById('deep-scan-percentage');
+        const quickScanPercentage = document.getElementById('quick-scan-percentage');
+
+        document.getElementById('start-deep-scan').addEventListener('click', () => {
+            mainContent.classList.add('hidden');
+            scanInProgressDeep.classList.remove('hidden');
+            // Hloubkový test: 2 minuty na procento (120000 ms)
+            simulateScan(deepScanPercentage, 120000, deepScanSuccess, scanInProgressDeep);
+        });
+
+        document.getElementById('start-quick-scan').addEventListener('click', () => {
+            mainContent.classList.add('hidden');
+            scanInProgressQuick.classList.remove('hidden');
+            // Rychlý test: 3.6 sekundy na procento (3600 ms)
+            simulateScan(quickScanPercentage, 3600, quickScanSuccess, scanInProgressQuick);
+        });
+
+        function simulateScan(percentageElement, delayPerPercent, successScreen, currentScanScreen) {
+            let percentage = 0;
+            percentageElement.textContent = `${percentage} %`;
+
+            const interval = setInterval(() => {
+                percentage++;
+                percentageElement.textContent = `${percentage} %`;
+                if (percentage >= 100) {
+                    clearInterval(interval);
+                    currentScanScreen.classList.add('hidden');
+                    successScreen.classList.remove('hidden');
+                }
+            }, delayPerPercent);
+        }
+    </script>
+</body>
+</html>
